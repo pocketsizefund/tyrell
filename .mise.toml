@@ -1,0 +1,37 @@
+[tools]
+direnv = "latest"
+
+[env]
+PLATFORM = "linux/amd64"
+
+
+[tasks."lint"]
+description = "lint rust"
+run = """
+cd $root
+cargo clippy --all --
+"""
+
+[tasks."fmt"]
+description = "format rust"
+run = """
+cd $root
+cargo fmt --all
+"""
+
+[tasks."test"]
+description = "run tests"
+run = """
+cd $root
+cargo test
+"""
+
+[tasks."audit"]
+description = "cargo deny"
+run = """
+cd $root
+cargo deny check
+"""
+
+[tasks."all"]
+depends = ["lint", "fmt", "test", "audit"]
