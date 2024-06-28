@@ -14,7 +14,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v1
-      - name: Change directory
       - name: Install Rust toolchain
         uses: actions-rs/audit-check@v1
       - name: install cargo deny
