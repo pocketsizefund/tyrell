@@ -1,8 +1,7 @@
 name: formatter
 
 on:
-  pull_request:
-    types: [opened, closed, reopened]
+  pull_request
 
 env:
   CARGO_TERM_COLOR: always
