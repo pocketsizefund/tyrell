@@ -3,5 +3,11 @@ name = "tyrell"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "tyrell"
+path = "src/lib.rs"
+
 [dependencies]
 reqwest = "0.12.5"
+serde = { version = "1.0.203", features = ["derive"] }
+serde_json = "1.0.118"
