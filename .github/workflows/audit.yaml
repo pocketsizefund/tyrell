@@ -1,0 +1,23 @@
+name: cargo audit
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  security-audit:
+    name: Run Rust Cargo dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v1
+      - name: Change directory
+      - name: Install Rust toolchain
+        uses: actions-rs/audit-check@v1
+      - name: install cargo deny
+        run: cargo install cargo-deny
+      - name: Run cargo deny
+        run: mise run audit

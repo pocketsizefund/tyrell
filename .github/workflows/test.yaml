@@ -1,0 +1,29 @@
+
+name: linter
+
+on:
+  pull_request:
+    types: [opened, closed, reopened]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Run Rust unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: setup mise
+        uses: jdx/mise-action@v2
+        with:
+          experimental: true
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Run unit tests
+        run: mise run test
