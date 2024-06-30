@@ -2,6 +2,7 @@
 name = "tyrell"
 version = "0.1.0"
 edition = "2021"
+licenst = "MIT"
 
 [lib]
 name = "tyrell"
