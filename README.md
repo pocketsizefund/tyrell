@@ -1,6 +1,6 @@
 # Tyrell
 
-[![cargo audit](https://github.com/hyperprior/tyrell/actions/workflows/audit.yaml/badge.svg)](https://github.com/hyperprior/tyrell/actions/workflows/audit.yaml)
+[![cargo audit](https://github.com/hyperprior/tyrell/actions/workflows/audit.yaml/badge.svg?branch=main)](https://github.com/hyperprior/tyrell/actions/workflows/audit.yaml)
 
 More human than human.
 
