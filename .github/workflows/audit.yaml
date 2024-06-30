@@ -9,8 +9,8 @@ on:
       - main
 
 jobs:
-  name: Run cargo deny
   cargo-deny:
+    name: Run cargo deny
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
