@@ -1,23 +1,18 @@
 name: linter
 
 on:
-  pull_request:
-    types: [opened, closed, reopened]
+  pull_request
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   lint:
-    name: Run Rust code formatting
+    name: Run Rust code linting
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: setup mise
-        uses: jdx/mise-action@v2
-        with:
-          experimental: true
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -25,4 +20,4 @@ jobs:
           override: true
           components: rustfmt
       - name: linting with clippy
-        run: mise run lint
+        run: cargo clippy --all --

@@ -1,9 +1,17 @@
 [tools]
 direnv = "latest"
+watchexec = "latest"
 
 [env]
 PLATFORM = "linux/amd64"
 
+[tasks."build"]
+description = "build library"
+run = "cargo build"
+
+[tasks."build:watch"]
+description = "watch library"
+run = "cargo watch -x 'test'"
 
 [tasks."lint"]
 description = "lint rust"

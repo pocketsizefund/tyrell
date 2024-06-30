@@ -1,8 +1,7 @@
 name: formatter
 
 on:
-  pull_request:
-    types: [opened, closed, reopened]
+  pull_request
 
 env:
   CARGO_TERM_COLOR: always
@@ -14,10 +13,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: setup mise
-        uses: jdx/mise-action@v2
-        with:
-          experimental: true
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -25,4 +20,4 @@ jobs:
           override: true
           components: rustfmt
       - name: Formatting with rustfmt
-        run: mise run fmt
+        run: cargo fmt --all
