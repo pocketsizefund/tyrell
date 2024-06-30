@@ -1,8 +1,10 @@
 [package]
 name = "tyrell"
+description = "More human than human. Interacting with LLMs in a rusty way."
 version = "0.1.0"
 edition = "2021"
-licenst = "MIT"
+license = "MIT"
+license-file = "LICENSE"
 
 [lib]
 name = "tyrell"
