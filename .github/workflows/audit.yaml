@@ -1,10 +1,14 @@
 name: cargo audit
 
-on: pull_request
+on: 
+  - pull_request
+  - push:
+      branches:
+        - main
 
 jobs:
+  name: Run cargo deny
   cargo-deny:
-    name: Run cargo deny
     runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v3
