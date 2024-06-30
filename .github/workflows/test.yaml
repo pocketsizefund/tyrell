@@ -14,10 +14,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: setup mise
-        uses: jdx/mise-action@v2
-        with:
-          experimental: true
       - name: Install Rust toolchain
         uses: actions-rs/toolchain@v1
         with:
@@ -25,4 +21,4 @@ jobs:
           toolchain: stable
           override: true
       - name: Run unit tests
-        run: mise run test
+        run: cargo test
