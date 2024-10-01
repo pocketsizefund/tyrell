@@ -4,7 +4,6 @@ description = "More human than human. Interacting with LLMs in a rusty way."
 version = "0.1.0"
 edition = "2021"
 license = "MIT"
-license-file = "LICENSE"
 
 [lib]
 name = "tyrell"
@@ -14,6 +13,8 @@ path = "src/lib.rs"
 reqwest = "0.12.5"
 serde = { version = "1.0.203", features = ["derive"] }
 serde_json = "1.0.118"
+tera = "1.20.0"
 
 [dev-dependencies]
+pretty_assertions = "1.4.1"
 regex = "1.10.5"
