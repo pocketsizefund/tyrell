@@ -27,6 +27,8 @@
           clippy
           openssl
           pkg-config
+          bacon
+          mdbook
         ];
         shellHook = ''
           echo "rust version: $(rustc --version)"
