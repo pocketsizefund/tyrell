@@ -29,6 +29,7 @@
           pkg-config
           bacon
           mdbook
+          httpie
         ];
         shellHook = ''
           echo "rust version: $(rustc --version)"
