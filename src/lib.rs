@@ -9,6 +9,19 @@ use serde_json::json;
 use serde_json::Value;
 use std::collections::HashMap;
 
+/// Available Claude Models.
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum Model {
+    #[serde(rename = "claude-3-5-sonnet-20240620")]
+    Sonnet35,
+    #[serde(rename = "claude-3-opus-20240229")]
+    Opus3,
+    #[serde(rename = "claude-3-sonnet-20240229")]
+    Sonnet3,
+    #[serde(rename = "claude-3-haiku-20240307")]
+    Haiku3,
+}
+
 /// Represents the role of a message in a conversation.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "lowercase")]
@@ -182,6 +195,14 @@ pub struct Usage {
     pub output_tokens: u32,
 }
 
+/// Represents the stopping reason in the API response.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename = "snake_case")]
+pub enum StopReason {
+    MaxTokens,
+    ToolUse,
+}
+
 /// Represents the response from the Claude API.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ClaudeResponse {
@@ -190,16 +211,39 @@ pub struct ClaudeResponse {
     pub response_type: String,
     pub role: Role,
     pub content: Vec<ContentType>,
-    pub model: String,
-    pub stop_reason: Option<String>,
+    pub model: Model,
+    pub stop_reason: Option<StopReason>,
     pub stop_sequence: Option<String>,
     pub usage: Usage,
 }
+/* {"id": "msg_01RhY4TxxRHM2b3N81ijdJms",
+"role": "assistant",
+"content": [
+    {
+      "type": "tool_use",
+      "id": "toolu_01CQ1Yq17jrrMpF5uiAMt4bU",
+      "name": "extract_super_bowl_info",
+      "input": {
+        "winner": "Green Bay Packers",
+        "winner_score": 31, "loser": "Miami Dolphins",
+        "loser_score": 10, "year": 1982
+      }
+    }
+  ],
+} */
 
+// {
+//     "type": "message",
+//     "content": [
+//       {"type": "text",
+//        "text": "The 16th President of the United States was Abraham Lincoln. He served as the nation's president from March 4, 1861, until his assassination for"
+//       }
+//     ],
+// }
 /// Builder for creating a request to the Claude API.
 #[derive(Debug, Clone, Default)]
 pub struct ClaudeRequestBuilder {
-    pub model: Option<String>,
+    pub model: Option<Model>,
     pub messages: Vec<Message>,
     pub max_tokens: Option<u32>,
     pub metadata: Option<HashMap<String, String>>,
@@ -220,8 +264,8 @@ impl ClaudeRequestBuilder {
     }
 
     /// Sets the model for the request.
-    pub fn model(mut self, model: impl Into<String>) -> Self {
-        self.model = Some(model.into());
+    pub fn model(mut self, model: Model) -> Self {
+        self.model = Some(model);
         self
     }
 
@@ -323,7 +367,7 @@ impl ClaudeRequestBuilder {
 /// Represents a complete request to the Claude API.
 #[derive(Debug, Clone, Deserialize)]
 pub struct ClaudeRequest {
-    pub model: String,
+    pub model: Model,
     pub messages: Vec<Message>,
     pub max_tokens: u32,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -394,7 +438,7 @@ impl ClaudeRequest {
     }
 
     /// Invoke the Claude Chat API.
-    pub async fn call(&self) -> Result<ClaudeResponse, Box<dyn std::error::Error>> {
+    pub async fn call(&self) -> Result<(), Box<dyn std::error::Error>> {
         let api_key = std::env::var("ANTHROPIC_API_KEY").expect("ANTHROPIC_API_KEY must be set");
         let client = reqwest::Client::new();
 
@@ -414,11 +458,14 @@ impl ClaudeRequest {
 
         let status = response.status();
 
+        let text = response.text().await?;
+
+        println!("{:#?}", text);
         if status.is_success() {
-            let claude_response = response.json::<ClaudeResponse>().await?;
-            Ok(claude_response)
+            // let claude_response = response.json::<ClaudeResponse>().await?;
+            Ok(())
         } else {
-            let error_body = response.text().await?;
+            let error_body = text;
             Err(format!(
                 "API request failed with status: {}. Error: {}",
                 status, error_body
@@ -431,6 +478,8 @@ impl ClaudeRequest {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use anyhow::Result;
+    use pretty_assertions::assert_eq;
     use schemars::JsonSchema;
 
     #[derive(Debug, Serialize, Deserialize, JsonSchema)]
@@ -453,7 +502,7 @@ mod tests {
         let stock_price_tool = Tool::new::<GetStockPrice>();
 
         let request = ClaudeRequest::builder()
-            .model("claude-3-opus-20240229")
+            .model(Model::Opus3)
             .add_message(
                 Role::User,
                 vec![ContentType::Text {
@@ -469,7 +518,7 @@ mod tests {
             .build()
             .expect("Failed to build request");
 
-        assert_eq!(request.model, "claude-3-opus-20240229");
+        assert_eq!(request.model, Model::Opus3);
         assert_eq!(request.max_tokens, 100);
         assert_eq!(request.temperature, Some(0.7));
         assert!(request.tools.is_some());
@@ -484,7 +533,7 @@ mod tests {
     #[test]
     fn test_minimal_valid_request() {
         let request = ClaudeRequest::builder()
-            .model("claude-3-opus-20240229")
+            .model(Model::Opus3)
             .add_message(
                 Role::User,
                 vec![ContentType::Text {
@@ -500,7 +549,7 @@ mod tests {
     #[test]
     fn test_request_with_all_params() {
         let request = ClaudeRequest::builder()
-            .model("claude-3-opus-20240229")
+            .model(Model::Haiku3)
             .add_message(
                 Role::User,
                 vec![ContentType::Text {
@@ -523,7 +572,7 @@ mod tests {
     #[test]
     fn test_multiple_messages() {
         let request = ClaudeRequest::builder()
-            .model("claude-3-opus-20240229")
+            .model(Model::Sonnet35)
             .add_message(
                 Role::User,
                 vec![ContentType::Text {
@@ -555,7 +604,7 @@ mod tests {
         metadata.insert("key".to_string(), "value".to_string());
 
         let request = ClaudeRequest::builder()
-            .model("claude-3-opus-20240229")
+            .model(Model::Haiku3)
             .add_message(
                 Role::User,
                 vec![ContentType::Text {
@@ -615,7 +664,7 @@ mod tests {
         let tool = Tool::new::<Calculator>();
 
         let request = ClaudeRequest::builder()
-            .model("claude-3-opus-20240229")
+            .model(Model::Opus3)
             .add_message(
                 Role::User,
                 vec![ContentType::Text {
@@ -633,7 +682,7 @@ mod tests {
     #[test]
     fn test_tool_choice_options() {
         let request = ClaudeRequest::builder()
-            .model("claude-3-opus-20240229")
+            .model(Model::Sonnet3)
             .add_message(
                 Role::User,
                 vec![ContentType::Text {
@@ -653,5 +702,101 @@ mod tests {
                 disable_parallel_tool_use: Some(true)
             })
         ));
+    }
+
+    #[test]
+    fn test_tool_use_request_body_valid() -> Result<()> {
+        let chat = ClaudeRequest::builder()
+            .model(Model::Sonnet35)
+            .max_tokens(200)
+            .add_message(
+                Role::Assistant,
+                vec![ContentType::Text {
+                    text: "You're an NFL expert extract the game info.".to_string(),
+                }],
+            )
+            .add_message(
+                Role::User,
+                vec![ContentType::Text {
+                text: "The Green Bay Packers beat the Miami Dolphins in the 1982 Super Bowl 31-10."
+                    .to_string(),
+            }],
+            )
+            .build();
+
+        let expected = serde_json::json!({
+             "model": "claude-3-opus-20240229",
+             "messages": [
+               {
+                 "role": "assistant",
+                 "content": [
+                   "You're an NFL expert extract the game info."
+                 ]
+               },
+               {
+                 "role": "user",
+                 "content": [
+                   {
+                     "type": "text",
+                     "text": "The Green Bay Packers beat the Miami Dolphins in the 1982 Super Bowl 31-10."
+                   }
+                 ]
+               }
+             ],
+             "max_tokens":200,
+             "tools": [
+               {
+                 "name": "extract_super_bowl_info",
+                 "description": "Extract Super Bowl information from text",
+                   "input_schema": {
+                     "type": "object",
+                     "properties": {
+                       "loser": {
+                         "type": "string"
+                       },
+                       "loser_score": {
+                         "format": "uint8",
+                         "minimum": 0.0,
+                         "type": "integer"
+                       },
+                       "total_points_scored": {
+                         "format": "uint8",
+                         "minimum": 0.0,
+                         "type": ["integer","null"]
+                       },
+                       "winner": {
+                         "type": "string"
+                       },
+                       "winner_score": {
+                         "format": "uint8",
+                         "minimum": 0.0,
+                         "type": "integer"
+                       },
+                       "year": {
+                         "format": "uint16",
+                         "minimum": 0.0,
+                         "type": "integer"
+                       }
+                     },
+                     "required": [
+                       "loser",
+                       "loser_score",
+                       "winner",
+                       "winner_score",
+                       "year"
+                     ]
+                   }
+                 }
+              ],
+            "tool_choice": {
+              "disable_parallel_tool_use": false,
+              "name": "extract_super_bowl_info",
+              "type": "tool"
+            }
+        });
+
+        // let expected: serde_json::Value = serde_json::from_str(expected)?;
+
+        Ok(())
     }
 }

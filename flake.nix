@@ -29,6 +29,8 @@
           pkg-config
           bacon
           mdbook
+          mdbook-linkcheck
+          jq
           httpie
         ];
         shellHook = ''

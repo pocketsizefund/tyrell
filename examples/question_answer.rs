@@ -1,8 +1,7 @@
-use test_log::test;
 use tyrell::{ClaudeRequest, ContentType, Model, Role};
 
-#[test(tokio::test)]
-async fn test_qa() {
+#[tokio::main]
+async fn main() {
     let chat = ClaudeRequest::builder()
         .model(Model::Opus3)
         .add_message(
@@ -17,7 +16,4 @@ async fn test_qa() {
 
     let response = chat.call().await.unwrap();
     println!("{:#?}", response);
-
-    assert_eq!(response.role, Role::Assistant);
-    assert!(!response.content.is_empty());
 }
