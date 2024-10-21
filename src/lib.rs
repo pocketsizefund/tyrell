@@ -2,6 +2,7 @@
 //!
 //! This SDK provides a way to interact with the Claude API using a simple builder pattern.
 
+use anyhow::{Context, Result};
 use reqwest::header::{HeaderMap, HeaderValue, CONTENT_TYPE};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -438,7 +439,7 @@ impl ClaudeRequest {
     }
 
     /// Invoke the Claude Chat API.
-    pub async fn call(&self) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn call(&self) -> Result<String> {
         let api_key = std::env::var("ANTHROPIC_API_KEY").expect("ANTHROPIC_API_KEY must be set");
         let client = reqwest::Client::new();
 
@@ -458,19 +459,19 @@ impl ClaudeRequest {
 
         let status = response.status();
 
-        let text = response.text().await?;
+        let text = response
+            .text()
+            .await
+            .context("Failed to get response text")?;
 
-        println!("{:#?}", text);
         if status.is_success() {
-            // let claude_response = response.json::<ClaudeResponse>().await?;
-            Ok(())
+            Ok(text)
         } else {
-            let error_body = text;
-            Err(format!(
+            Err(anyhow::anyhow!(
                 "API request failed with status: {}. Error: {}",
-                status, error_body
-            )
-            .into())
+                status,
+                text
+            ))
         }
     }
 }

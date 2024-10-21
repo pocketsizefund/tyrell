@@ -1,8 +1,7 @@
 use anyhow::Result;
+use jsonxf::pretty_print;
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
-use std::fs::File;
-use std::io::Write;
 use tyrell::{ClaudeRequest, ContentType, Model, Role, Tool, ToolBuilder, ToolChoice};
 
 #[derive(Debug, Serialize, Deserialize, JsonSchema)]
@@ -55,14 +54,10 @@ async fn main() -> Result<()> {
         .build()
         .unwrap();
 
-    let body = serde_json::to_string_pretty(&chat)?;
-    println!("{:#?}", body);
-    let mut file = File::create("testing.json")?;
-    file.write_all(body.as_bytes())?;
-
     let response = chat.call().await.unwrap();
+    let response = pretty_print(&response).unwrap();
 
-    println!("{:#?}", response);
+    println!("{}", response);
 
     Ok(())
 }

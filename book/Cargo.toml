@@ -1,0 +1,7 @@
+[package]
+name = "book"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tyrell = "0.1.0"
