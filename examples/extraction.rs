@@ -55,9 +55,9 @@ async fn main() -> Result<()> {
         .unwrap();
 
     let response = chat.call().await.unwrap();
-    let response = pretty_print(&response).unwrap();
+    // let response = pretty_print(&response).unwrap();
 
-    println!("{}", response);
+    println!("{:#?}", response.content);
 
     Ok(())
 }

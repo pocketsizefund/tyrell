@@ -217,30 +217,7 @@ pub struct ClaudeResponse {
     pub stop_sequence: Option<String>,
     pub usage: Usage,
 }
-/* {"id": "msg_01RhY4TxxRHM2b3N81ijdJms",
-"role": "assistant",
-"content": [
-    {
-      "type": "tool_use",
-      "id": "toolu_01CQ1Yq17jrrMpF5uiAMt4bU",
-      "name": "extract_super_bowl_info",
-      "input": {
-        "winner": "Green Bay Packers",
-        "winner_score": 31, "loser": "Miami Dolphins",
-        "loser_score": 10, "year": 1982
-      }
-    }
-  ],
-} */
 
-// {
-//     "type": "message",
-//     "content": [
-//       {"type": "text",
-//        "text": "The 16th President of the United States was Abraham Lincoln. He served as the nation's president from March 4, 1861, until his assassination for"
-//       }
-//     ],
-// }
 /// Builder for creating a request to the Claude API.
 #[derive(Debug, Clone, Default)]
 pub struct ClaudeRequestBuilder {
@@ -440,6 +417,7 @@ impl ClaudeRequest {
 
     /// Invoke the Claude Chat API.
     pub async fn call(&self) -> Result<String> {
+        // TODO: Result<ClaudeResponse>
         let api_key = std::env::var("ANTHROPIC_API_KEY").expect("ANTHROPIC_API_KEY must be set");
         let client = reqwest::Client::new();
 
@@ -465,6 +443,8 @@ impl ClaudeRequest {
             .context("Failed to get response text")?;
 
         if status.is_success() {
+            // let claude_response: ClaudeResponse =
+            //     serde_json::from_str(&text).context("Failed to deserialize ClaudeResponse")?;
             Ok(text)
         } else {
             Err(anyhow::anyhow!(
